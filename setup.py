@@ -45,7 +45,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
 setup(name='docassemble.MarriageWithoutDelay',
       version='0.0.1',
       description=('A docassemble extension.'),
-      long_description='# docassemble.MarriageWithoutDelay\n\nA docassemble extension.\n\n## Author\n\nAubrie Souza, asouza@su.suffolk.edu\n\n',
+      long_description='# docassemble.MarriageWithoutDelay\r\n\r\nA docassemble extension.\r\n\r\n## Author\r\n\r\nAubrie Souza, asouza@su.suffolk.edu\r\n\r\n',
       long_description_content_type='text/markdown',
       author='Aubrie Souza',
       author_email='asouza@su.suffolk.edu',
