@@ -1,0 +1,349 @@
+---
+mandatory: True
+code: |
+  interview_metadata # make sure we initialize the object
+  if not defined("interview_metadata['Marriage_without_Delay']"):
+    interview_metadata.initializeObject('Marriage_without_Delay')
+  interview_metadata['Marriage_without_Delay'].update({
+  "title": 'Marriage without delay no minors',
+  "short title": 'Marriage without delay no minors',
+  "description": 'Petitioners seeking courts permission to waive 3 day waiting period should complete top portion of form',
+    'original_form': 'https://www.mass.gov/doc/marriage-without-delaymarriage-of-minors-cjd-430/download',
+    'allowed courts': [
+      'Probate and Family Court',
+      'District Court'
+    ],
+    'preferred court': 'District Court',
+    'categories': [
+      'Family Law',
+    ],
+    'logic block variable': 'Marriage_without_Delay',
+    'attachment block variable': 'Marriage_without_Delay_attachment',
+    'typical role': 'plaintiff',
+    'built_in_fields_used': [
+      {'variable': 'court_name',
+       'transformed_variable': 'str(courts[0])',
+      },
+      {'variable': 'docket_number',
+       'transformed_variable': 'docket_numbers[0]',
+      },
+      {'variable': 'user1_name',
+       'transformed_variable': 'str(users[1-1])',
+      },
+      {'variable': 'user1_address_street',
+       'transformed_variable': 'users[1-1].address.address',
+      },
+      {'variable': 'user1_address_city',
+       'transformed_variable': 'users[1-1].address.city',
+      },
+      {'variable': 'user1_address_state',
+       'transformed_variable': 'users[1-1].address.state',
+      },
+      {'variable': 'user1_address_zip',
+       'transformed_variable': 'users[1-1].address.zip',
+      },
+      {'variable': 'user2_name',
+       'transformed_variable': 'str(users[2-1])',
+      },
+      {'variable': 'user2_address_zip',
+       'transformed_variable': 'users[2-1].address.zip',
+      },
+      {'variable': 'user2_address_street',
+       'transformed_variable': 'users[2-1].address.address',
+      },
+      {'variable': 'user2_address_city',
+       'transformed_variable': 'users[2-1].address.city',
+      },
+      {'variable': 'user2_address_state',
+       'transformed_variable': 'users[2-1].address.state',
+      },
+      {'variable': 'user1_signature',
+       'transformed_variable': 'users[1-1].signature',
+      },
+      {'variable': 'signature_date',
+       'transformed_variable': 'signature_date',
+      },
+      {'variable': 'user2_signature',
+       'transformed_variable': 'users[2-1].signature',
+      },
+      ],
+  })
+---
+mandatory: True
+id: interview_order_Marriage_without_Delay
+code: |
+  basic_questions_intro_screen 
+  Marriage_without_Delay_intro
+  str(users[1-1])
+  str(users[2-1])
+  if same_address_question:
+    users[1].address = users[0].address
+  users[1-1].address.address
+  users[1-1].address.city
+  users[1-1].address.state
+  users[1-1].address.zip
+  users[2-1].address.zip
+  users[2-1].address.address
+  users[2-1].address.city
+  users[2-1].address.state
+  users[0].mobile_number
+  users[0].phone_number
+  users[0].email
+  users[0].other_contact_method
+  preferred_court = interview_metadata["Marriage_without_Delay"]["preferred court"]
+  allowed_courts = interview_metadata["Marriage_without_Delay"]["allowed courts"]
+  str(courts[0])
+  Marriage_without_Delay = True
+  # By default, we'll mark any un-filled fields as DAEmpty(). This helps avoid errors if you intentionally hide a logic branch or mark a question not required
+  # Comment out the line below if you don't want this behavior. 
+  #mark_unfilled_fields_empty(interview_metadata["Marriage_without_Delay"])
+  Marriage_without_Delay_preview_question
+  
+  signature_date
+  basic_questions_signature_flow
+  users[2-1].signature
+  Marriage_without_Delay_download_question
+  after_filing_info
+---
+need: Marriage_without_Delay
+id: final attachment
+attachment:
+    variable name: Marriage_without_Delay_attachment
+    name: Marriage Without Delay
+    filename: Marriage_Without_Delay
+    pdf template file: Marriage_without_Delay.pdf
+    fields: 
+      - "court_name": ${ str(courts[0]) }
+      - "user1_name": ${ str(users[1-1]) }
+      - "user1_address_street": ${ users[1-1].address.address }
+      - "user1_address_city": ${ users[1-1].address.city }
+      - "user1_address_state": ${ users[1-1].address.state }
+      - "user1_address_zip": ${ users[1-1].address.zip }
+      - "user2_name": ${ str(users[2-1]) }
+      - "user2_address_zip": ${ users[2-1].address.zip }
+      - "user2_address_street": ${ users[2-1].address.address }
+      - "user2_address_city": ${ users[2-1].address.city }
+      - "user2_address_state": ${ users[2-1].address.state }
+      - "signature_date": ${ signature_date }
+      - "user1_signature": ${ users[1-1].signature }
+      - "user2_signature": ${ users[2-1].signature }
+---
+id: Download and exit screen 
+field: Marriage_without_Delay_download_question
+
+question: |
+  Here is your final form.
+subquestion: |
+  Next steps:
+  
+  The court should contact you today. If you do not hear from the court in one hour, call their local number to make sure they got your form. 
+  
+   The Marriage Without Delay form seeks the court's permission to waive 3 day waiting period once you apply for a marriage license.
+  
+  You may disregard the Marriage of Minors portion of this form. 
+  
+  ${Marriage_without_Delay_attachment}
+
+attachment code: Marriage_without_Delay_attachment
+ 
+---
+include:
+  - docassemble.MAVirtualCourt:basic-questions.yml
+---
+id: intro screen
+comment: |
+  This question is used to introduce your interview. Please customize
+continue button field: Marriage_without_Delay_intro
+question: |
+  Request for Marriage Without Delay
+subquestion: |
+ There is a 3 day waiting period after you file your intention to marry in your local city or town hall. 
+ 
+  Before going to your local city or town hall to apply for your marriage license, complete these questions to request permission to skip the 3 day waiting period.  
+  
+  After completing this form, the court will contact you for a hearing to decide if you are allowed to skip the 3 day waiting period. 
+  
+# comment: should we explain what the waiting period is for? 
+# comment: we are using partner to be gender/class neutral
+# comment: should we use 3 or three for readability
+---
+id: preview screen
+continue button field: Marriage_without_Delay_preview_question
+question: |
+  Please preview your form before signing. 
+subquestion: |
+  Here is a preview of the form you'll sign on the next page.
+    
+  You may disregard the Marriage of Minors portion of this form. 
+   
+  ${Marriage_without_Delay_attachment_preview}
+---
+id: preview unsigned 
+attachment:
+    variable name: Marriage_without_Delay_attachment_preview
+    name: Marriage Without Delay
+    filename: Marriage_Without_Delay
+    pdf template file: Marriage_without_Delay.pdf
+    fields: 
+      - "court_name": ${ str(courts[0]) }
+      - "user1_name": ${ str(users[1-1]) }
+      - "user1_address_street": ${ users[1-1].address.address }
+      - "user1_address_city": ${ users[1-1].address.city }
+      - "user1_address_state": ${ users[1-1].address.state }
+      - "user1_address_zip": ${ users[1-1].address.zip }
+      - "user2_name": ${ str(users[2-1]) }
+      - "user2_address_zip": ${ users[2-1].address.zip }
+      - "user2_address_street": ${ users[2-1].address.address }
+      - "user2_address_city": ${ users[2-1].address.city }
+      - "user2_address_state": ${ users[2-1].address.state }
+---
+id: spouse 1 name
+question: |
+  What is your name? 
+fields:
+  - First Name: users[0].name.first
+  - Middle Name: users[0].name.middle
+    required: False
+  - Last Name: users[0].name.last
+  - Suffix: users[0].name.suffix
+    code: |
+      name_suffix()
+    required: False
+---
+id: spouse 2 name
+question: |
+  What is the name of your partner?
+fields:
+  - First Name: users[1].name.first
+  - Middle Name: users[1].name.middle
+    required: False
+  - Last Name: users[1].name.last
+  - Suffix: users[1].name.suffix
+    code: |
+      name_suffix()
+    required: False
+---
+question: |
+  Do you and ${ str(users[2-1]) } have the same address?  
+fields: 
+  - no label: same_address_question
+    datatype: yesnoradio
+---
+if: |
+  True # not defined('preferred_court') or preferred_court != 'Housing Court'
+id: court information
+sets:
+  - courts[0].name
+question: |
+  Which court would you like to file in?
+subquestion: |
+  You can file in these courts: ${comma_and_list(allowed_courts)}.
+  You can try finding your local court by using the [Courthouse Locator](https://www.mass.gov/guides/find-a-courthouse-serving-you).
+fields:
+  - Court name: courts[0]
+    datatype: object
+    choices: macourts.filter_courts(allowed_courts)
+continue button field: ask_court_question
+---
+id: address
+question: |
+  What is your address?
+subquestion: |
+  What address should the court use to mail papers to you?
+
+fields:
+  - Street address: users[0].address.address
+    address autocomplete: True
+  - Unit: users[0].address.unit
+    required: False
+  - City: users[0].address.city
+  - State: users[0].address.state
+    code: |
+      states_list()
+    default: MA      
+  - Zip: users[0].address.zip
+---
+id: contact information 
+question: |
+  What is your contact information?
+subquestion: |
+  The court needs to reach you to schedule your hearing.
+  
+  Include at least one way to reach you other than by mail.
+  
+fields: 
+  - Mobile number: users[0].mobile_number
+    required: False
+  - Other phone number: users[0].phone_number
+    required: False
+  - Email address: users[0].email    
+    datatype: email
+    required: False
+  - Other ways to reach you: users[0].other_contact_method
+    input type: area
+    required: False
+    help: |
+      If you do not have a phone number or email the court can use, provide
+      specific contact instructions. For example, use a friend's phone number.
+      But the friend must be someone you can rely on to tell you the court is trying to reach you.
+      
+validation code: |
+  if (not showifdef('users[0].phone_number') and \
+      (not showifdef('users[0].mobile_number')) and \
+      (not showifdef('users[0].email')) and \
+      (not showifdef('users[0].other_contact_method'))):
+    validation_error(word("You need to provide at least one contact method."))
+help: |
+  The court **must** be able to reach you. So you have to give them some way to do this.
+  
+  Some forms allow you to tell the court you need to keep your address, phone,
+  and email confidential, so that only court staff can see this information.
+---
+id: signature date
+question: |
+  When do you plan to file these forms that we are working on?
+subquestion: |
+  We automatically answer "today" for you, below. You can change the date.
+ 
+fields: 
+  - Date: signature_date
+    datatype: date
+    default: ${today().format("yyyy-MM-dd")}
+
+# comment: In the future, if the user chooses a day more than three days out, a page should tell them that they don't need to fill this form out.
+
+# comment: Possible addition: "Reminder: if your wedding date is more than four days away, you may not need to fill out this form." 
+  
+---
+id: next steps 
+event: after_filing_info
+question: |
+  Congrats! What to expect next
+
+subquestion: |
+  If you don't hear from the court one hour after filing, call them to make sure they got your information. You will have a hearing with a judge to find out if you can skip the three day waiting period. 
+  
+  If you are allowed to skip the waiting period, you must file for a marriage license in person at your local city or town hall. Follow this link for a list of local city and town hall contact information in Massachusetts: https://www.sec.state.ma.us/cis/cistel/telidx.htm
+  
+  You will need to bring the following items to your local city or town hall: 
+  
+  * Proof of your age, such as a birth certificate or passport; 
+  
+  * Your Social Security number - If you don’t have an SSN, ask the clerk what to do;
+  
+  * Payment for fees, if fees apply;
+  
+  * The name you’ll use after the wedding if you’ve decided to change it; 
+  
+   Other possible requirements:
+  
+  * The end date any prior marriages of the future spouses; 
+  
+  * Names of your parents and where they were born;
+  
+  * Town you are getting married in
+
+buttons: 
+  - Restart: restart 
+  - Exit: exit
+  

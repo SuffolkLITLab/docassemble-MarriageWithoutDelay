@@ -1,8 +1,1 @@
-# docassemble.MarriageWithoutDelay
-
-A docassemble extension.
-
-## Author
-
-Aubrie Souza, asouza@su.suffolk.edu
-
+This is an interview to complete the marriage without delay form online. The marriage without delay form allows people to skip the 3 day waiting period normally required before recieving a marriage license.
