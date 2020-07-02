@@ -8,7 +8,6 @@ code: |
   "title": 'Marriage without delay no minors',
   "short title": 'Marriage without delay no minors',
   "description": 'Petitioners seeking courts permission to waive 3 day waiting period should complete top portion of form',
-    'original_form': 'https://www.mass.gov/doc/marriage-without-delaymarriage-of-minors-cjd-430/download',
     'allowed courts': [
       'Probate and Family Court',
       'District Court'
@@ -132,49 +131,85 @@ id: Download and exit screen
 field: Marriage_without_Delay_download_question
 
 question: |
-  Here is your final form.
+  Here is your final form
 subquestion: |
   Next steps:
   
+  If you are ready to submit this form to the court today, continue to the Email to Court Screen. 
+  
+  The Marriage Without Delay form seeks the court's permission to waive 3 day waiting period once you apply for a marriage license at the local city or town clerk. 
+  
+  
   The court should contact you today. If you do not hear from the court in one hour, call their local number to make sure they got your form. 
   
-   The Marriage Without Delay form seeks the court's permission to waive 3 day waiting period once you apply for a marriage license.
-  
-  You may disregard the Marriage of Minors portion of this form. 
-  
+  You should ignore the Marriage of Minors portion of this form.
+ 
   ${Marriage_without_Delay_attachment}
 
 attachment code: Marriage_without_Delay_attachment
- 
 ---
 include:
   - docassemble.MAVirtualCourt:basic-questions.yml
 ---
 id: intro screen
-comment: |
-  This question is used to introduce your interview. Please customize
 continue button field: Marriage_without_Delay_intro
 question: |
   Request for Marriage Without Delay
 subquestion: |
- There is a 3 day waiting period after you file your intention to marry in your local city or town hall. 
- 
-  Before going to your local city or town hall to apply for your marriage license, complete these questions to request permission to skip the 3 day waiting period.  
+  To get married in Massachusetts, you need a marriage license.
+
+  To get a marriage license you need to: 
   
-  After completing this form, the court will contact you for a hearing to decide if you are allowed to skip the 3 day waiting period. 
+  * Go, in-person, to the town or city hall where you want to get married,
   
-# comment: should we explain what the waiting period is for? 
-# comment: we are using partner to be gender/class neutral
-# comment: should we use 3 or three for readability
+  * Apply for your license, and
+  
+  * Wait 3 days to pick up you marriage license or receive your marriage license by mail
+  
+  If you cannot wait 3 days to get your license, you can ask a judge to skip the 3 day waiting period.  To talk with a judge, answer the following questions to complete the request for Marriage Without Delay. 
+  
+  **Before you begin this form**, call your town or city clerk to find out all the documents and information needed for a marriage license. Ask the clerk which Court you should file in, and how much the license costs. 
+  
+  Use the [Massachusetts City and Town Directory](https://www.sec.state.ma.us/ele/eleclk/clkidx.htm) to find the town or city clerk's phone number.
+  
+  You and your partner will need to sign this form together. 
+help: 
+  label: What will the clerk ask for? 
+  heading: The clerk may ask for
+  content: |
+    **What will the clerk ask for:**
+    
+    * Proof of your age, such as a birth certificate, passport, or driver's license,
+    
+    * Your Social Security number - if you do not have a SSN, ask the clerk what to do,
+    
+    * Payment for fees, if fees apply, and
+    
+    * The name(s) you will use after the wedding if you have decided to change it. 
+    
+    **Other information the clerk may need from you:**
+    
+    * The end date of any prior marrrages of either future spouse,
+    
+    * Names of your parents and where they were born, or
+    
+    * The town you plan on getting married in.
+    
+    **If the clerk does not tell you, ask them:**
+    
+    * The fee for a marriage license 
+    
+    * The best court the file the request for Marriage Without Delay
+
 ---
 id: preview screen
 continue button field: Marriage_without_Delay_preview_question
 question: |
-  Please preview your form before signing. 
+  Preview your form before signing
 subquestion: |
-  Here is a preview of the form you'll sign on the next page.
+  Here is a preview of the form you will sign on the next page.
     
-  You may disregard the Marriage of Minors portion of this form. 
+  You should ignore the Marriage of Minors portion of this form. 
    
   ${Marriage_without_Delay_attachment_preview}
 ---
@@ -223,27 +258,12 @@ fields:
       name_suffix()
     required: False
 ---
+id: same address
 question: |
   Do you and ${ str(users[2-1]) } have the same address?  
 fields: 
   - no label: same_address_question
     datatype: yesnoradio
----
-if: |
-  True # not defined('preferred_court') or preferred_court != 'Housing Court'
-id: court information
-sets:
-  - courts[0].name
-question: |
-  Which court would you like to file in?
-subquestion: |
-  You can file in these courts: ${comma_and_list(allowed_courts)}.
-  You can try finding your local court by using the [Courthouse Locator](https://www.mass.gov/guides/find-a-courthouse-serving-you).
-fields:
-  - Court name: courts[0]
-    datatype: object
-    choices: macourts.filter_courts(allowed_courts)
-continue button field: ask_court_question
 ---
 id: address
 question: |
@@ -265,12 +285,12 @@ fields:
 ---
 id: contact information 
 question: |
-  What is your contact information?
+  What is the best way for the court to reach you and your partner?
 subquestion: |
-  The court needs to reach you to schedule your hearing.
+  How can the court best reach you and your partner to schedule a time to talk with a judge?
   
-  Include at least one way to reach you other than by mail.
-  
+  Include at least one way to reach you and your partner other than by mail.
+ 
 fields: 
   - Mobile number: users[0].mobile_number
     required: False
@@ -301,9 +321,9 @@ help: |
 ---
 id: signature date
 question: |
-  When do you plan to file these forms that we are working on?
+  When are you and your partner going to file this form?
 subquestion: |
-  We automatically answer "today" for you, below. You can change the date.
+  We automatically answer "today" for you, below. You can change the date
  
 fields: 
   - Date: signature_date
@@ -318,32 +338,55 @@ fields:
 id: next steps 
 event: after_filing_info
 question: |
-  Congrats! What to expect next
+  Congratulations! What to expect next:
 
 subquestion: |
-  If you don't hear from the court one hour after filing, call them to make sure they got your information. You will have a hearing with a judge to find out if you can skip the three day waiting period. 
+  If you and your partner do not hear from the court one hour after filing, call them to make sure they got your information. You will speak to  a judge to find out if you and your partner can skip the three day waiting period. 
   
-  If you are allowed to skip the waiting period, you must file for a marriage license in person at your local city or town hall. Follow this link for a list of local city and town hall contact information in Massachusetts: https://www.sec.state.ma.us/cis/cistel/telidx.htm
+  If you and your partner are allowed to skip the waiting period, you must file for a marriage license in person at your local city or town hall. Use the [Massachusetts City and Town Directory](https://www.sec.state.ma.us/ele/eleclk/clkidx.htm) to find the town or city clerk's phone number.
   
   You will need to bring the following items to your local city or town hall: 
   
-  * Proof of your age, such as a birth certificate or passport; 
+  * Proof of your age, such as a birth certificate or passport,
   
-  * Your Social Security number - If you don’t have an SSN, ask the clerk what to do;
+  * Your Social Security number - if you do not have an SSN, ask the clerk what to do,
   
-  * Payment for fees, if fees apply;
+  * Payment for fees, if fees apply, and
   
-  * The name you’ll use after the wedding if you’ve decided to change it; 
+  * The name you will use after the wedding if you have decided to change it. 
   
    Other possible requirements:
   
-  * The end date any prior marriages of the future spouses; 
+  * The end date any prior marriages of the future spouses,
   
-  * Names of your parents and where they were born;
+  * Names of your parents and where they were born,
   
-  * Town you are getting married in
+  * Town you are getting married in.
 
 buttons: 
   - Restart: restart 
   - Exit: exit
+---
+if: |
+  not defined('preferred_court') or preferred_court != 'Housing Court'
+id: court information
+sets:
+  - courts[0].name
+question: |
+  What court would you like to file in?
+fields:
+  - Did the clerk tell you the best court to file in?: clerk_already_told_you
+    datatype: yesnoradio
+  - note: Pick the courthouse the clerk told you to file in.
+    show if: clerk_already_told_you
+  - note: You can try finding your local court by using the [Courthouse Locator](https://www.mass.gov/guides/find-a-courthouse-serving-you). 
+    hide if: clerk_already_told_you
+  - Court name: courts[0]
+    datatype: object
+    choices: macourts.filter_courts(["District Court","Boston Municipal Court", "Probate and Family Court", "Superior Court"])
+continue button field: ask_court_question  
+
+
+
+
   
