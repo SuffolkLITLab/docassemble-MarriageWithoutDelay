@@ -80,8 +80,7 @@ code: |
   Marriage_without_Delay_intro
   str(users[1-1])
   str(users[2-1])
-  if same_address_question:
-    users[1].address = users[0].address
+  same_address_question
   users[1-1].address.address
   users[1-1].address.city
   users[1-1].address.state
@@ -244,7 +243,33 @@ fields:
       states_list()
     default: MA      
   - Zip: users[0].address.zip
+---
+id: second address
+question: |
+  What is ${ users[1].name }'s address?
+subquestion: |
+  What address should the court use to mail papers to you?
 
+fields:
+  - Street address: users[1].address.address
+    address autocomplete: True
+  - Unit: users[1].address.unit
+    required: False
+  - City: users[1].address.city
+  - State: users[1].address.state
+    code: |
+      states_list()
+    default: MA      
+  - Zip: users[1].address.zip
+---
+id: same address logic
+code: |
+  if same_address_question:
+    users[1].address = users[0].address.copy_deep("users[1].address")
+  else: 
+    users[1].address.address 
+depends on: 
+  - same_address_question
 ---
 id: contact information 
 question: |
@@ -480,7 +505,6 @@ continue button field: email_status
 continue button label: Back to download screen
 ---
 id: interpreter 
-reconsider: True
 question: |
   Do you need an interpreter?
 subquestion: |
@@ -590,8 +614,7 @@ event: review_all_sections
 reconsider: 
   - form_to_file_no_cover
   - Marriage_without_Delay_attachment
-  - general_cover_sheet
- 
+  - general_cover_sheet 
 id: review answers 
 question: | 
   Review your answers 
@@ -599,23 +622,15 @@ review:
   - note: | 
       ### About you, ${ users[0].name }
       
-  - Revisit Name: users[0].name.first
+  - Edit Name: users[0].name.first
     button: |
       You said your name is **${ users[0].name }**.
     
-  - Revisit ${ users[0].name }'s address: users[0].address.address
+  - Edit ${ users[0].name }'s address: users[0].address.address
     button: | 
       Your address is: 
       
       ${ users[0].address }.
-      
-  - Revisit Same Address: same_address_question 
-    button: | 
-      % if same_address_question == 'True': 
-      You said you and ${ users[1].name } have different addresses 
-      % else: 
-      You said you and ${ users[1].name } have the same address
-      % endif
 
   - note: | 
       ### About your partner, ${ users[1].name }
@@ -623,13 +638,13 @@ review:
   - Revisit Partner's Name: users[1].name.first
     button: | 
       Your partner's name is  **${ users[1].name }**.
+      
   - Revisit ${ users[1].name }'s address: users[1].address.address
     button: | 
       ${ users[1].name }'s address is: 
       
       ${ users[1].address }.
       
-
   - note: | 
       ### Your contact information: 
     
@@ -637,7 +652,7 @@ review:
     button: | 
       Your contact information is: 
       
-      ${ users[0].mobile_number } 
+      ${ users[0].mobile_number }
       
       ${ users[0].phone_number } 
       
@@ -646,8 +661,7 @@ review:
       ${ users[0].other_contact_method } 
       
   - note: | 
-      ### You told the ${ courts[0] }: 
-    
+      ### Court Information: 
     
   - Revisit Court Selection: courts[0] 
     button: |
@@ -663,9 +677,9 @@ review:
       
   - Revisit Interpreter Choice: user_needs_interpreter
     button: |
-      % if user_needs_interpreter == "False": 
+      % if not user_needs_interpreter: 
       You chose not to have an interpreter. 
       % else: 
       Your preferred language is: ${ user_preferred_language }
       % endif
-     
+
