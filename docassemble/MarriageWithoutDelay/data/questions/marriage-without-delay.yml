@@ -109,7 +109,6 @@ code: |
   comments_to_clerk
   Marriage_without_Delay = True
   download
- 
 ---
 need: Marriage_without_Delay
 id: final attachment
@@ -147,7 +146,7 @@ subquestion: |
   
   * Apply for your license, and
   
-  * Wait 3 days to pick up you marriage license or receive your marriage license by mail
+  * Wait 3 days to pick up you marriage license or receive your marriage license by mail.
   
   If you cannot wait 3 days to get your license, you can ask a judge to skip the 3 day waiting period.  To talk with a judge, answer the following questions to complete the request for Marriage Without Delay. 
   
@@ -155,7 +154,16 @@ subquestion: |
   
   Use the [Massachusetts City and Town Directory](https://www.sec.state.ma.us/ele/eleclk/clkidx.htm) to find the town or city clerk's phone number.
   
-  You and your partner will need to sign this form together. 
+fields:
+  - You and your partner need to be together to sign the form: acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - My partner and I are together. 
+    validation messages:
+      minlength: |
+        You cannot continue unless you agree to the terms of use. This form is short and takes about 10 minutes to fill out.        
 help: 
   label: What will the clerk ask for? 
   heading: The clerk may ask for
@@ -180,12 +188,25 @@ help:
     
     **If the clerk does not tell you, ask them:**
     
-    * The fee for a marriage license 
+    * The fee for a marriage license, and 
     
-    * The best court the file the request for Marriage Without Delay
+    * The best court the file the request for Marriage Without Delay.
+---
+id: your name
+question:  |
+  What is your name?
+fields:
+  - First Name: users[0].name.first
+  - Middle Name: users[0].name.middle
+    required: False
+  - Last Name: users[0].name.last
+  - Suffix: users[0].name.suffix
+    code: |
+      name_suffix()
+    required: False
 
 ---
-id: spouse 2 name
+id: Partners name 
 question: |
   What is the name of your partner?
 fields:
@@ -197,6 +218,7 @@ fields:
     code: |
       name_suffix()
     required: False
+
 ---
 id: same address
 question: |
@@ -222,6 +244,7 @@ fields:
       states_list()
     default: MA      
   - Zip: users[0].address.zip
+
 ---
 id: contact information 
 question: |
@@ -258,6 +281,7 @@ help: |
   
   Some forms allow you to tell the court you need to keep your address, phone,
   and email confidential, so that only court staff can see this information.
+
 ---
 if: |
   not defined('preferred_court') or preferred_court != 'Housing Court'
@@ -266,19 +290,27 @@ sets:
   - courts[0].name
 question: |
   What court would you like to file in?
-
+subquestion: |
+  If the clerk told you the best court to file in, select it below. 
   
-fields:
-  - Did the clerk tell you the best court to file in?: clerk_already_told_you
-    datatype: yesnoradio
-    required: False 
-  - note: Pick the courthouse the clerk told you to file in.
-    show if: clerk_already_told_you
-  - note: You can try finding your local court by using the [Courthouse Locator](https://www.mass.gov/guides/find-a-courthouse-serving-you). 
-    hide if: clerk_already_told_you
+  If the clerk did not tell you the best court to file in, you can try finding your local court by using the [Courthouse directory](https://www.mass.gov/guides/find-a-courthouse-serving-you).
+fields: 
   - Court name: courts[0]
     datatype: object
     choices: macourts.filter_courts(["District Court", "Probate and Family Court"])
+help:
+  label: Find your clerk
+  heading: |
+    Find your clerk
+  content: | 
+      ** Find your clerk **
+      
+      Use the [Massachusetts City and Town Directory](https://www.sec.state.ma.us/ele/eleclk/clkidx.htm) to find the town or city clerk's phone number.
+      
+      Call your town or city clerk to find out all the documents and information needed for a marriage license. 
+      
+      Ask the clerk which Court you should file in, and how much the license costs. 
+  
 continue button field: ask_court_question
 ---
 id: preview screen
@@ -291,6 +323,7 @@ subquestion: |
   You should ignore the Marriage of Minors portion of this form. 
    
   ${Marriage_without_Delay_attachment_preview}
+
 ---
 id: signature date
 question: |
@@ -306,28 +339,12 @@ fields:
 # comment: In the future, if the user chooses a day more than three days out, a page should tell them that they don't need to fill this form out.
 
 # comment: Possible addition: "Reminder: if your wedding date is more than four days away, you may not need to fill out this form." 
----
-event: review_all_sections
-question: |
-  Review of your answers
-subquestion: |
-  ${showifdef('form_to_sign')}
-  % if defined('form_delivery_complete'):
-  **Warning: your form has already been delivered.** Any changes you make
-  will _not_ be sent to the court.
-  % endif
-  Click a section to revisit the answers from that section.
-  % for section in section_links(nav):
-  * ${section}
-  % endfor
-  Press "${word("Resume")}" to resume the
-  interview.
-buttons:
-  ${word("Resume")}: continue
 
 ---
 id: download form
 event: download
+reconsider: 
+  - form_to_file_no_cover
 comment: |
   The attachment email screen relies on final_form_to_file being defined. This
   will be built from the interview_metadata dictionary's contents, but if you
@@ -359,7 +376,7 @@ subquestion: |
   Monday - Friday.
   % endif
   
-  ${ form_to_file_no_cover }  
+  ${ form_to_file_no_cover } 
   
   ${action_button_html(url_action('review_all_sections'), icon='edit', label=word("Make changes"))}
   
@@ -374,7 +391,6 @@ subquestion: |
   % endif
 progress: 100
 attachment code: Marriage_without_Delay_attachment
-section: download
 ---
 progress: 100
 mandatory: False
@@ -418,6 +434,9 @@ question: |
   Something went wrong delivering your form
   % endif
 subquestion: |
+
+  [:file-download: Download a copy of your form and next steps](${instructions_download.url_for(attachment=True)})
+  
   % if email_success:  
   If you and your partner do not hear from the ${courts[0]} one hour after filing, call them at ${ courts[0].phone } to make sure they got your information. 
   
@@ -456,16 +475,12 @@ subquestion: |
   8:30am - 4:30pm,  
   Monday - Friday.  
   % endif
-  
-  [:file-download: Download this form with cover page and next steps](${instructions_download.url_for(attachment=True)})
 
-  ${ instructions_download }
-  
-attachment code: Marriage_without_Delay_attachment 
 continue button field: email_status
 continue button label: Back to download screen
 ---
 id: interpreter 
+reconsider: True
 question: |
   Do you need an interpreter?
 subquestion: |
@@ -565,10 +580,92 @@ attachment:
 ---
 reconsider: True 
 code: |
-    instructions_download = pdf_concatenate(general_cover_sheet, form_to_file_no_cover, mwd_instructions_sheet, filename=space_to_underscore(package_title) + '.pdf')
+    instructions_download = pdf_concatenate(form_to_file_no_cover, mwd_instructions_sheet, filename=space_to_underscore(package_title) + '.pdf')
 --- 
 reconsider: True 
 code: | 
     form_to_file_no_cover = pdf_concatenate([value(interview_metadata[key]["attachment block variable"]) for key in interview_metadata.elements])
+---
+event: review_all_sections
+reconsider: 
+  - form_to_file_no_cover
+  - Marriage_without_Delay_attachment
+  - general_cover_sheet
+ 
+id: review answers 
+question: | 
+  Review your answers 
+review:
+  - note: | 
+      ### About you, ${ users[0].name }
+      
+  - Revisit Name: users[0].name.first
+    button: |
+      You said your name is **${ users[0].name }**.
+    
+  - Revisit ${ users[0].name }'s address: users[0].address.address
+    button: | 
+      Your address is: 
+      
+      ${ users[0].address }.
+      
+  - Revisit Same Address: same_address_question 
+    button: | 
+      % if same_address_question == 'True': 
+      You said you and ${ users[1].name } have different addresses 
+      % else: 
+      You said you and ${ users[1].name } have the same address
+      % endif
 
+  - note: | 
+      ### About your partner, ${ users[1].name }
+      
+  - Revisit Partner's Name: users[1].name.first
+    button: | 
+      Your partner's name is  **${ users[1].name }**.
+  - Revisit ${ users[1].name }'s address: users[1].address.address
+    button: | 
+      ${ users[1].name }'s address is: 
+      
+      ${ users[1].address }.
+      
 
+  - note: | 
+      ### Your contact information: 
+    
+  - Revisit Contact Info: users[0].mobile_number
+    button: | 
+      Your contact information is: 
+      
+      ${ users[0].mobile_number } 
+      
+      ${ users[0].phone_number } 
+      
+      ${ users[0].email } 
+      
+      ${ users[0].other_contact_method } 
+      
+  - note: | 
+      ### You told the ${ courts[0] }: 
+    
+    
+  - Revisit Court Selection: courts[0] 
+    button: |
+      You are filing with the ${courts[0]}
+    
+  - Revisit Info for Clerk: comments_to_clerk
+    button: | 
+      % if comments_to_clerk == "":
+        You did not provide additional information for the clerk.
+      % else:
+        You told the clerk: ${ comments_to_clerk }
+      % endif
+      
+  - Revisit Interpreter Choice: user_needs_interpreter
+    button: |
+      % if user_needs_interpreter == "False": 
+      You chose not to have an interpreter. 
+      % else: 
+      Your preferred language is: ${ user_preferred_language }
+      % endif
+     
