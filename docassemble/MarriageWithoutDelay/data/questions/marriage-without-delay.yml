@@ -105,9 +105,9 @@ code: |
   signature_date
   basic_questions_signature_flow
   users[2-1].signature
-  comments_to_clerk
   Marriage_without_Delay = True
   download
+  comments_to_clerk
 ---
 need: Marriage_without_Delay
 id: final attachment
@@ -428,6 +428,7 @@ subquestion: |
   1. Step 2
   Below is a preview of your form.
   ${ Marriage_without_Delay }
+  
 attachment code: Marriage_without_Delay
 ---
 id: preview unsigned 
@@ -626,7 +627,7 @@ review:
     button: |
       You said your name is **${ users[0].name }**.
     
-  - Edit ${ users[0].name }'s address: users[0].address.address
+  - Edit ${ users[0].name }'s Address: users[0].address.address
     button: | 
       Your address is: 
       
@@ -635,11 +636,11 @@ review:
   - note: | 
       ### About your partner, ${ users[1].name }
       
-  - Revisit Partner's Name: users[1].name.first
+  - Edit Partner's Name: users[1].name.first
     button: | 
       Your partner's name is  **${ users[1].name }**.
       
-  - Revisit ${ users[1].name }'s address: users[1].address.address
+  - Edit ${ users[1].name }'s Address: users[1].address.address
     button: | 
       ${ users[1].name }'s address is: 
       
@@ -648,7 +649,7 @@ review:
   - note: | 
       ### Your contact information: 
     
-  - Revisit Contact Info: users[0].mobile_number
+  - Edit Contact Info: users[0].mobile_number
     button: | 
       Your contact information is: 
       
@@ -663,19 +664,11 @@ review:
   - note: | 
       ### Court Information: 
     
-  - Revisit Court Selection: courts[0] 
+  - Edit Court Selection: courts[0] 
     button: |
-      You are filing with the ${courts[0]}
-    
-  - Revisit Info for Clerk: comments_to_clerk
-    button: | 
-      % if comments_to_clerk == "":
-        You did not provide additional information for the clerk.
-      % else:
-        You told the clerk: ${ comments_to_clerk }
-      % endif
+      You are filing with the ${courts[0]}. 
       
-  - Revisit Interpreter Choice: user_needs_interpreter
+  - Edit Interpreter Choice: user_needs_interpreter
     button: |
       % if not user_needs_interpreter: 
       You chose not to have an interpreter. 
