@@ -35,6 +35,9 @@ code: |
       {'variable': 'user1_address_street',
        'transformed_variable': 'users[1-1].address.address',
       },
+      {'variable': 'user1_address_unit',
+       'transformed_variable': 'users[1-1].address.unit',
+      },
       {'variable': 'user1_address_city',
        'transformed_variable': 'users[1-1].address.city',
       },
@@ -49,6 +52,9 @@ code: |
       },
       {'variable': 'user2_address_zip',
        'transformed_variable': 'users[2-1].address.zip',
+      },
+      {'variable': 'user2_address_unit',
+       'transformed_variable': 'users[2-1].address.unit',
       },
       {'variable': 'user2_address_street',
        'transformed_variable': 'users[2-1].address.address',
@@ -81,14 +87,20 @@ code: |
   str(users[1-1])
   str(users[2-1])
   same_address_question
-  users[1-1].address.address
-  users[1-1].address.city
-  users[1-1].address.state
-  users[1-1].address.zip
-  users[2-1].address.zip
-  users[2-1].address.address
-  users[2-1].address.city
-  users[2-1].address.state
+  users[0].address.address
+  if same_address_question:
+    users[1].address = users[0].address.copy_deep("users[1].address")
+  else: 
+    users[0].address.address
+    users[1].address.address 
+  #users[1-1].address.address
+  #users[1-1].address.city
+  #users[1-1].address.state
+  #users[1-1].address.zip
+  #users[2-1].address.zip
+  #users[2-1].address.address
+  #users[2-1].address.city
+  #users[2-1].address.state
   preferred_court = interview_metadata["Marriage_without_Delay"]["preferred court"]
   allowed_courts = interview_metadata["Marriage_without_Delay"]["allowed courts"]
   str(courts[0])
@@ -105,9 +117,9 @@ code: |
   signature_date
   basic_questions_signature_flow
   users[2-1].signature
-  comments_to_clerk
   Marriage_without_Delay = True
   download
+  comments_to_clerk
 ---
 need: Marriage_without_Delay
 id: final attachment
@@ -120,11 +132,13 @@ attachment:
       - "court_name": ${ str(courts[0]) }
       - "user1_name": ${ str(users[1-1]) }
       - "user1_address_street": ${ users[1-1].address.address }
+      - "user1_address_unit": ${ users[1-1].address.unit }
       - "user1_address_city": ${ users[1-1].address.city }
       - "user1_address_state": ${ users[1-1].address.state }
       - "user1_address_zip": ${ users[1-1].address.zip }
       - "user2_name": ${ str(users[2-1]) }
       - "user2_address_zip": ${ users[2-1].address.zip }
+      - "user2_address_unit": ${ users[2-1].address.unit }
       - "user2_address_street": ${ users[2-1].address.address }
       - "user2_address_city": ${ users[2-1].address.city }
       - "user2_address_state": ${ users[2-1].address.state }
@@ -262,14 +276,14 @@ fields:
     default: MA      
   - Zip: users[1].address.zip
 ---
-id: same address logic
-code: |
-  if same_address_question:
-    users[1].address = users[0].address.copy_deep("users[1].address")
-  else: 
-    users[1].address.address 
-depends on: 
-  - same_address_question
+#id: same address logic
+#code: |
+#  if same_address_question:
+#    users[1].address = users[0].address.copy_deep("users[1].address")
+#  else: 
+#    users[1].address.address 
+#depends on: 
+#  - same_address_question
 ---
 id: contact information 
 question: |
@@ -347,8 +361,8 @@ subquestion: |
     
   You should ignore the Marriage of Minors portion of this form. 
    
-  ${Marriage_without_Delay_attachment_preview}
-
+  ${ Marriage_without_Delay_attachment_preview }
+  
 ---
 id: signature date
 question: |
@@ -368,8 +382,9 @@ fields:
 ---
 id: download form
 event: download
-reconsider: 
-  - form_to_file_no_cover
+#reconsider: 
+ # - form_to_file_no_cover 
+ # - Marriage_without_Delay_attachment
 comment: |
   The attachment email screen relies on final_form_to_file being defined. This
   will be built from the interview_metadata dictionary's contents, but if you
@@ -428,6 +443,7 @@ subquestion: |
   1. Step 2
   Below is a preview of your form.
   ${ Marriage_without_Delay }
+  
 attachment code: Marriage_without_Delay
 ---
 id: preview unsigned 
@@ -440,17 +456,23 @@ attachment:
       - "court_name": ${ str(courts[0]) }
       - "user1_name": ${ str(users[1-1]) }
       - "user1_address_street": ${ users[1-1].address.address }
+      - "user1_address_unit": ${ users[1-1].address.unit }
       - "user1_address_city": ${ users[1-1].address.city }
       - "user1_address_state": ${ users[1-1].address.state }
       - "user1_address_zip": ${ users[1-1].address.zip }
       - "user2_name": ${ str(users[2-1]) }
       - "user2_address_zip": ${ users[2-1].address.zip }
+      - "user2_address_unit": ${ users[2-1].address.unit }
       - "user2_address_street": ${ users[2-1].address.address }
       - "user2_address_city": ${ users[2-1].address.city }
       - "user2_address_state": ${ users[2-1].address.state }
 ---
 need: sent_email_to_court
 id: email status
+#reconsider: 
+#  - form_to_file_no_cover 
+#  - Marriage_without_Delay_attachment
+#  - mwd_instructions_sheet
 decoration: file-download
 question: |
   % if email_success:
@@ -602,19 +624,18 @@ attachment:
   filename: ${package_title}
   docx template file: mwd_instructions_sheet.docx
 ---
-reconsider: True 
+#reconsider: True 
 code: |
-    instructions_download = pdf_concatenate(form_to_file_no_cover, mwd_instructions_sheet, filename=space_to_underscore(package_title) + '.pdf')
+    instructions_download = pdf_concatenate(mwd_instructions_sheet, form_to_file_no_cover, filename=space_to_underscore(package_title) + '.pdf')
 --- 
-reconsider: True 
+#reconsider: True 
 code: | 
     form_to_file_no_cover = pdf_concatenate([value(interview_metadata[key]["attachment block variable"]) for key in interview_metadata.elements])
 ---
 event: review_all_sections
 reconsider: 
-  - form_to_file_no_cover
+  - form_to_file_no_cover 
   - Marriage_without_Delay_attachment
-  - general_cover_sheet 
 id: review answers 
 question: | 
   Review your answers 
@@ -626,7 +647,7 @@ review:
     button: |
       You said your name is **${ users[0].name }**.
     
-  - Edit ${ users[0].name }'s address: users[0].address.address
+  - Edit ${ users[0].name }'s Address: users[0].address.address
     button: | 
       Your address is: 
       
@@ -635,11 +656,11 @@ review:
   - note: | 
       ### About your partner, ${ users[1].name }
       
-  - Revisit Partner's Name: users[1].name.first
+  - Edit Partner's Name: users[1].name.first
     button: | 
       Your partner's name is  **${ users[1].name }**.
       
-  - Revisit ${ users[1].name }'s address: users[1].address.address
+  - Edit ${ users[1].name }'s Address: users[1].address.address
     button: | 
       ${ users[1].name }'s address is: 
       
@@ -663,19 +684,11 @@ review:
   - note: | 
       ### Court Information: 
     
-  - Revisit Court Selection: courts[0] 
+  - Edit Court Selection: courts[0] 
     button: |
-      You are filing with the ${courts[0]}
-    
-  - Revisit Info for Clerk: comments_to_clerk
-    button: | 
-      % if comments_to_clerk == "":
-        You did not provide additional information for the clerk.
-      % else:
-        You told the clerk: ${ comments_to_clerk }
-      % endif
+      You are filing with the ${courts[0]}. 
       
-  - Revisit Interpreter Choice: user_needs_interpreter
+  - Edit Interpreter Choice: user_needs_interpreter
     button: |
       % if not user_needs_interpreter: 
       You chose not to have an interpreter. 
