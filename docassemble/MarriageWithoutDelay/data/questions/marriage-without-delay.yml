@@ -376,9 +376,6 @@ fields:
 ---
 id: download form
 event: download
-#reconsider: 
- # - form_to_file_no_cover 
- # - Marriage_without_Delay_attachment
 comment: |
   The attachment email screen relies on final_form_to_file being defined. This
   will be built from the interview_metadata dictionary's contents, but if you
@@ -396,7 +393,7 @@ subquestion: |
   Thank you ${users[0].name} and ${ users[1].name}. Your form is ready to send to the court. **It is not
   delivered until you complete the delivery process below.**
 
-  1. Click the preview image below to open the form in a new window. Correct any errors using the "Make changes" button below.
+  1. Click the preview image below to open the form in a new window.
   2. Download and save or print a copy of this form for your 
   records.
   3. Click the "Submit to ${courts[0]}" button to send it to the court. 
@@ -414,8 +411,6 @@ subquestion: |
   % endif
   
   ${ form_to_file_no_cover } 
-  
-  ${action_button_html(url_action('review_all_sections'), icon='edit', label=word("Make changes"))}
   
   % if not defined('email_success') or not email_success:
     ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(courts[0].name), icon=send_icon, size="md", color="primary")}
@@ -623,75 +618,8 @@ attachment:
   filename: ${package_title}
   docx template file: mwd_instructions_sheet.docx
 ---
-#reconsider: True 
 code: |
     instructions_download = pdf_concatenate(mwd_instructions_sheet, form_to_file_no_cover, filename=space_to_underscore(package_title) + '.pdf')
 --- 
-#reconsider: True 
 code: | 
     form_to_file_no_cover = pdf_concatenate([value(interview_metadata[key]["attachment block variable"]) for key in interview_metadata.elements])
----
-event: review_all_sections
-reconsider: 
-  - form_to_file_no_cover 
-  - Marriage_without_Delay_attachment
-id: review answers 
-question: | 
-  Review your answers 
-review:
-  - note: | 
-      ### About you, ${ users[0].name }
-      
-  - Edit Name: users[0].name.first
-    button: |
-      You said your name is **${ users[0].name }**.
-    
-  - Edit ${ users[0].name }'s Address: users[0].address.address
-    button: | 
-      Your address is: 
-      
-      ${ users[0].address }.
-
-  - note: | 
-      ### About your partner, ${ users[1].name }
-      
-  - Edit Partner's Name: users[1].name.first
-    button: | 
-      Your partner's name is  **${ users[1].name }**.
-      
-  - Edit ${ users[1].name }'s Address: users[1].address.address
-    button: | 
-      ${ users[1].name }'s address is: 
-      
-      ${ users[1].address }.
-      
-  - note: | 
-      ### Your contact information: 
-    
-  - Edit Contact Info: users[0].mobile_number
-    button: | 
-      Your contact information is: 
-      
-      ${ users[0].mobile_number }
-      
-      ${ users[0].phone_number } 
-      
-      ${ users[0].email } 
-      
-      ${ users[0].other_contact_method } 
-      
-  - note: | 
-      ### Court Information: 
-    
-  - Edit Court Selection: courts[0] 
-    button: |
-      You are filing with the ${courts[0]}. 
-      
-  - Edit Interpreter Choice: user_needs_interpreter
-    button: |
-      % if not user_needs_interpreter: 
-      You chose not to have an interpreter. 
-      % else: 
-      Your preferred language is: ${ user_preferred_language }
-      % endif
-
