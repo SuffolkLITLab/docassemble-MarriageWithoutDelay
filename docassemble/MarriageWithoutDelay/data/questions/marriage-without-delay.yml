@@ -10,7 +10,7 @@ code: |
   interview_metadata['Marriage_without_Delay'].update({
   "title": 'Request for Marriage Without Delay',
   "short title": 'Request for Marriage Without Delay',
-  "description": 'Petitioners seeking courts permission to waive 3 day waiting period should complete top portion of form',
+  "description": 'Petitioners seeking courts permission to waive 3 day waiting period should complete top part of form',
     'allowed courts': [
       'Probate and Family Court',
       'District Court',
@@ -177,27 +177,27 @@ help:
   content: |
     ### What will the clerk ask for?
     
-    * Proof of your age, such as a birth certificate, passport, or driver's license,
+    * Proof of your age, like a birth certificate, passport, or driver's license,
     
     * Your Social Security number - if you do not have a SSN, ask the clerk what to do,
     
     * Payment for fees, if fees apply, and
     
-    * The name(s) you will use after the wedding if you have decided to change it. 
+    * The names you will use after your wedding if you have decided to change it. 
     
     ### Other information the clerk may need from you
     
-    * The end date of any prior marrrages of either future spouse,
+    * The end date of any prior marriages of either future spouse,
     
-    * Names of your parents and where they were born, or
+    * Names of your parents and where they were born, and
     
     * The town you plan on getting married in.
     
-    ###If the clerk does not tell you, ask them
+    ### Ask the clerk 
     
-    * The fee for a marriage license, and 
+    * If there is a fee for a marriage license, and 
     
-    * The best court the file the request for Marriage Without Delay.
+    * The best court the file the request for Marriage Without Delay in.
 ---
 id: your name
 question:  |
@@ -283,9 +283,9 @@ id: contact information
 question: |
   What is the best way for the court to reach you and ${ users[1].name.first } ?
 subquestion: |
-  How can the court best reach you and ${ users[1].name.first } to schedule a time to talk with a judge?
+  The court needs to schedule a time for you and ${ users[1].name.first } to talk with a judge.
   
-  Include at least one way to reach you and ${ users[1].name.first } other than by mail.
+  Include at least one way to reach you and ${ users[1].name.first }, other than by mail.
  
 fields: 
   - Mobile number: users[0].mobile_number
@@ -350,7 +350,7 @@ question: |
 subquestion: |
   Here is a preview of the form you will sign on the next page.
     
-  Ignore the Marriage of Minors portion of this form. 
+  Ignore the Marriage of Minors part of this form. 
    
   ${ Marriage_without_Delay_attachment_preview }
   
@@ -388,7 +388,7 @@ question: |
 subquestion: |
   % if not defined('email_success') or not email_success:
   Your form is ready to send to the court. **It is not
-  delivered until you complete the delivery process below.**
+  delivered until you complete the delivery process.**
 
   1. Click the preview image below to open the form in a new window.
   2. Download and save or print a copy of this form for your 
@@ -396,7 +396,7 @@ subquestion: |
   3. Click the "Submit to ${courts[0]}" button to send it to the court. 
   4. You will have a chance to add instructions to the clerk and see the cover page before final delivery.
   
-  **Note**: The title of this form says “Probate and Family Court” but you may file in District Court or Probate and Family Court. 
+  **Note**: Even though it says 'Probate and Family Court' at the top of this form, If you are filing in District Court you still use the same form. 
   
   % else:
   If you do not hear from the court in 1 business day, call the Trial Court’s
@@ -490,13 +490,13 @@ subquestion: |
   
   You will need to bring the following items to your local city or town hall with your approved Marriage Without Delay: 
   
-  * Proof of your age, such as a birth certificate or passport,
+  * Proof of your age, like a birth certificate or passport,
   
   * Your Social Security number - if you do not have an SSN, ask the town clerk what to do,
   
   * Payment for fees, if fees apply, and
   
-  * The name you will use after the wedding if you have decided to change it. 
+  * The name you will use after your wedding if you decide to change your names.
   
    Other possible requirements:
   
@@ -506,7 +506,7 @@ subquestion: |
   
   * Town you are getting married in.
   
-  **Note**: The title of this form says “Probate and Family Court” but you may file in District Court or Probate and Family Court. 
+  **Note**: Even though it says 'Probate and Family Court' at the top of this form, If you are filing in District Court you still use the same form.
   
   % else:
   Something went wrong delivering your form to the ${courts[0]}.  
