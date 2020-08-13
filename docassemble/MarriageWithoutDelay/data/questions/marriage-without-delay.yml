@@ -333,7 +333,7 @@ help:
   heading: |
     Find your town clerk
   content: | 
-      ** Find your town clerk **
+      ### Find your town clerk 
       
       Use the [Massachusetts City and Town Directory](https://www.sec.state.ma.us/ele/eleclk/clkidx.htm) to find the town or city clerk's phone number.
       
