@@ -387,7 +387,7 @@ question: |
   % endif
 subquestion: |
   % if not defined('email_success') or not email_success:
-  Thank you ${users[0].name.first } and ${ users[1].name.first }. Your form is ready to send to the court. **It is not
+  Your form is ready to send to the court. **It is not
   delivered until you complete the delivery process below.**
 
   1. Click the preview image below to open the form in a new window.
