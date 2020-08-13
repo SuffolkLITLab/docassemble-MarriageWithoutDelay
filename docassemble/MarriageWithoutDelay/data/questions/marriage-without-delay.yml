@@ -175,7 +175,7 @@ help:
   label: What will the clerk ask for? 
   heading: The clerk may ask for
   content: |
-    **What will the clerk ask for:**
+    ### What will the clerk ask for?
     
     * Proof of your age, such as a birth certificate, passport, or driver's license,
     
@@ -185,7 +185,7 @@ help:
     
     * The name(s) you will use after the wedding if you have decided to change it. 
     
-    **Other information the clerk may need from you:**
+    ### Other information the clerk may need from you
     
     * The end date of any prior marrrages of either future spouse,
     
@@ -193,7 +193,7 @@ help:
     
     * The town you plan on getting married in.
     
-    **If the clerk does not tell you, ask them:**
+    ###If the clerk does not tell you, ask them
     
     * The fee for a marriage license, and 
     
@@ -215,7 +215,7 @@ fields:
 ---
 id: Partners name 
 question: |
-  What is the name of your partner?
+  What is your partner's name?
 fields:
   - First Name: users[1].name.first
   - Middle Name: users[1].name.middle
@@ -229,7 +229,7 @@ fields:
 ---
 id: same address
 question: |
-  Do you and ${ str(users[2-1]) } have the same address?  
+  Do you and ${ users[1].name.first } have the same address?  
 fields: 
   - no label: same_address_question
     datatype: yesnoradio
@@ -252,11 +252,11 @@ fields:
     default: MA      
   - Zip: users[0].address.zip
 ---
-id: second address
+id: .dress
 question: |
-  What is ${ users[1].name }'s address?
+  What is ${ users[1].name.first }'s address?
 subquestion: |
-  What address should the court use to mail papers to ${ users[1].name }?
+  What address should the court use to mail papers to ${ users[1].name.first }?
 
 fields:
   - Street address: users[1].address.address
@@ -281,11 +281,11 @@ code: |
 ---
 id: contact information 
 question: |
-  What is the best way for the court to reach you and ${ users[1].name} ?
+  What is the best way for the court to reach you and ${ users[1].name.first } ?
 subquestion: |
-  How can the court best reach you and ${ users[1].name} to schedule a time to talk with a judge?
+  How can the court best reach you and ${ users[1].name.first } to schedule a time to talk with a judge?
   
-  Include at least one way to reach you and ${ users[1].name} other than by mail.
+  Include at least one way to reach you and ${ users[1].name.first } other than by mail.
  
 fields: 
   - Mobile number: users[0].mobile_number
@@ -311,9 +311,6 @@ validation code: |
     validation_error(word("You need to provide at least one contact method."))
 help: |
   The court **must** be able to reach you. So you have to give them some way to do this.
-  
-  Some forms allow you to tell the court you need to keep your address, phone,
-  and email confidential, so that only court staff can see this information.
 
 ---
 if: |
@@ -353,14 +350,14 @@ question: |
 subquestion: |
   Here is a preview of the form you will sign on the next page.
     
-  You should ignore the Marriage of Minors portion of this form. 
+  Ignore the Marriage of Minors portion of this form. 
    
   ${ Marriage_without_Delay_attachment_preview }
   
 ---
 id: signature date
 question: |
-  When are you and ${ users[1].name} going to file this form?
+  When are you and ${ users[1].name.first } going to file this form?
 subquestion: |
   We automatically answer "today" for you, below. You can change the date
  
@@ -384,13 +381,13 @@ comment: |
 decoration: file-download
 question: |
   % if not defined('email_success') or not email_success:
-  Review, Download, and Send Form
+  Review, download, and send form
   % else:
   Form delivered
   % endif
 subquestion: |
   % if not defined('email_success') or not email_success:
-  Thank you ${users[0].name} and ${ users[1].name}. Your form is ready to send to the court. **It is not
+  Thank you ${users[0].name.first } and ${ users[1].name.first }. Your form is ready to send to the court. **It is not
   delivered until you complete the delivery process below.**
 
   1. Click the preview image below to open the form in a new window.
@@ -486,6 +483,9 @@ subquestion: |
   Monday - Friday. 
   
   **Next steps: **
+  
+  Download and save or print a copy of this form for your records.  
+  
   You will speak to a judge to find out if you and your partner can skip the 3 day waiting period. If you and your partner are allowed to skip the waiting period, you must file for a marriage license in person at your local city or town hall. Use the [Massachusetts City and Town Directory](https://www.sec.state.ma.us/ele/eleclk/clkidx.htm) to find the town or city clerk's phone number.
   
   You will need to bring the following items to your local city or town hall with your approved Marriage Without Delay: 
@@ -551,6 +551,9 @@ subquestion: |
   
   Below is your ${comma_and_list(download_titles)} document with the 
   cover page that we will deliver to ${courts[0]}.
+  
+  Download and save or print a copy of this form for your 
+  records. 
   
   Click "Back" if you need to make any changes.  
   Click "Send to court" to deliver it.
@@ -623,3 +626,4 @@ code: |
 --- 
 code: | 
     form_to_file_no_cover = pdf_concatenate([value(interview_metadata[key]["attachment block variable"]) for key in interview_metadata.elements])
+
