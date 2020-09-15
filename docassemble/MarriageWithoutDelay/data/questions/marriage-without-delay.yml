@@ -2,6 +2,10 @@
 include:
   - docassemble.MAVirtualCourt:basic-questions.yml
 ---
+metadata: 
+  title: |
+    Marriage Without Delay
+---
 mandatory: True
 code: |
   interview_metadata # make sure we initialize the object

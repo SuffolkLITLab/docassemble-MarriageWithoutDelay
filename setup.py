@@ -43,7 +43,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.MarriageWithoutDelay',
-      version='0.0.2',
+      version='0.0.3',
       description=('A docassemble extension.'),
       long_description='This is an interview to complete the marriage without delay form online. The marriage without delay form allows people to skip the 3 day waiting period normally required before recieving a marriage license.',
       long_description_content_type='text/markdown',
