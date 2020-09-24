@@ -8,6 +8,9 @@ metadata:
 ---
 mandatory: True
 code: |
+  user_role = "plaintiff"
+  other_parties.there_are_any = False
+  form_approved_for_email_filing = False
   interview_metadata # make sure we initialize the object
   if not defined("interview_metadata['Marriage_without_Delay']"):
     interview_metadata.initializeObject('Marriage_without_Delay')
@@ -375,13 +378,9 @@ fields:
 # comment: Possible addition: "Reminder: if your wedding date is more than four days away, you may not need to fill out this form." 
 
 ---
+if: form_approved_for_email_filing
 id: download form
 event: download
-comment: |
-  The attachment email screen relies on final_form_to_file being defined. This
-  will be built from the interview_metadata dictionary's contents, but if you
-  add any addenda you will want to set this in a code block somewhere that takes
-  priority over basic-questions.yml.
 decoration: file-download
 question: |
   % if not defined('email_success') or not email_success:
@@ -425,20 +424,6 @@ subquestion: |
 progress: 100
 attachment code: Marriage_without_Delay_attachment
 ---
-progress: 100
-mandatory: False
-question: |
-  Placeholder download screen
-subquestion: |
-  Placeholder
-  ### Next steps
-  1. Step 1
-  1. Step 2
-  Below is a preview of your form.
-  ${ Marriage_without_Delay }
-  
-attachment code: Marriage_without_Delay
----
 id: preview unsigned 
 attachment:
     variable name: Marriage_without_Delay_attachment_preview
@@ -459,6 +444,53 @@ attachment:
       - "user2_address_street": ${ users[1].address.line_one()  }
       - "user2_address_city": ${ users[1].address.city }
       - "user2_address_state": ${ users[1].address.state }
+---
+if: not form_approved_for_email_filing
+id: download form do not email
+event: download
+decoration: file-download
+question: |
+  Review, download, and file form
+subquestion: |
+  Your form is ready. You still need to call the court
+  to figure out the best way to file it.
+    
+  1. Click the link below to open the form in a new window.
+  2. Download and save or print a copy of this form for your 
+  records.
+  3. Call the clerk of the ${courts[0]} at ${ courts[0].phone } or call the emergency help line
+  at 833-912-6878 to get help filing this form. The clerk may ask you
+  to email it, e-file it, or to print and mail it.
+
+  [:file-download: Download a copy of your form and next steps](${instructions_download.url_for(attachment=True)})  
+  
+  **Next steps: **
+    
+  You will speak to a judge to find out if you and your partner can skip the 3 day waiting period. If you and your partner are allowed to skip the waiting period, you must file for a marriage license in person at your local city or town hall. Use the [Massachusetts City and Town Directory](https://www.sec.state.ma.us/ele/eleclk/clkidx.htm) to find the town or city clerk's phone number.
+  
+  You will need to bring the following items to your local city or town hall with your approved Marriage Without Delay: 
+  
+  * Proof of your age, like a birth certificate or passport,
+  
+  * Your Social Security number - if you do not have an SSN, ask the town clerk what to do,
+  
+  * Payment for fees, if fees apply, and
+  
+  * The name you will use after your wedding if you decide to change your names.
+  
+   Other possible requirements:
+  
+  * The end date any prior marriages of the future spouses,
+  
+  * Names of your parents and where they were born,
+  
+  * Town you are getting married in.
+  
+  **Note**: Even though it says 'Probate and Family Court' at the top of this form, If you are filing in District Court you still use the same form.
+  
+progress: 100
+section: download  
+attachment code: Marriage_without_Delay_attachment
 ---
 need: sent_email_to_court
 id: email status
