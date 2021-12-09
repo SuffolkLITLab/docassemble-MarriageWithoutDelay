@@ -1,10 +1,16 @@
 ---
 include:
-  - docassemble.MAVirtualCourt:basic-questions.yml
+  - docassemble.AssemblyLine:al_package.yml
+  - docassemble.MassAccess:massaccess.yml
 ---
 metadata: 
   title: |
     Marriage Without Delay
+  authors:
+    - Matthew Wilward
+---
+code: |
+  github_repo_name = "docassemble-MarriageWithoutDelay"
 ---
 mandatory: True
 code: |
@@ -29,59 +35,6 @@ code: |
     'logic block variable': 'Marriage_without_Delay',
     'attachment block variable': 'Marriage_without_Delay_attachment',
     'typical role': 'plaintiff',
-    'built_in_fields_used': [
-      {'variable': 'court_name',
-       'transformed_variable': 'str(courts[0])',
-      },
-      {'variable': 'docket_number',
-       'transformed_variable': 'docket_numbers[0]',
-      },
-      {'variable': 'user1_name',
-       'transformed_variable': 'str(users[1-1])',
-      },
-      {'variable': 'user1_address_street',
-       'transformed_variable': 'users[1-1].address.address',
-      },
-      {'variable': 'user1_address_unit',
-       'transformed_variable': 'users[1-1].address.unit',
-      },
-      {'variable': 'user1_address_city',
-       'transformed_variable': 'users[1-1].address.city',
-      },
-      {'variable': 'user1_address_state',
-       'transformed_variable': 'users[1-1].address.state',
-      },
-      {'variable': 'user1_address_zip',
-       'transformed_variable': 'users[1-1].address.zip',
-      },
-      {'variable': 'user2_name',
-       'transformed_variable': 'str(users[2-1])',
-      },
-      {'variable': 'user2_address_zip',
-       'transformed_variable': 'users[2-1].address.zip',
-      },
-      {'variable': 'user2_address_unit',
-       'transformed_variable': 'users[2-1].address.unit',
-      },
-      {'variable': 'user2_address_street',
-       'transformed_variable': 'users[2-1].address.address',
-      },
-      {'variable': 'user2_address_city',
-       'transformed_variable': 'users[2-1].address.city',
-      },
-      {'variable': 'user2_address_state',
-       'transformed_variable': 'users[2-1].address.state',
-      },
-      {'variable': 'user1_signature',
-       'transformed_variable': 'users[1-1].signature',
-      },
-      {'variable': 'signature_date',
-       'transformed_variable': 'signature_date',
-      },
-      {'variable': 'user2_signature',
-       'transformed_variable': 'users[2-1].signature',
-      },
-      ],
   })
 ---
 mandatory: True
@@ -98,7 +51,7 @@ code: |
   set_address_logic 
   preferred_court = interview_metadata["Marriage_without_Delay"]["preferred court"]
   allowed_courts = interview_metadata["Marriage_without_Delay"]["allowed courts"]
-  str(courts[0])
+  trial_court
   Marriage_without_Delay = True
   # By default, we'll mark any un-filled fields as DAEmpty(). This helps avoid errors if you intentionally hide a logic branch or mark a question not required
   # Comment out the line below if you don't want this behavior. 
@@ -111,37 +64,45 @@ code: |
   Marriage_without_Delay_preview_question
   signature_date
   basic_questions_signature_flow
-  users[2-1].signature
   Marriage_without_Delay = True
   download
   comments_to_clerk
 ---
-need: Marriage_without_Delay
+code: |
+  signature_fields = ["users[0].signature", "users[1].signature"]
+---
+objects:
+  - Marriage_without_Delay_attachment: ALDocument.using(title="Marriage Without Delay", filename="marriage_without_delay", enabled=True)
+  - mwd_instructions_sheet: ALDocument.using(title="Instructions", filename="instructions", enabled=True)
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(title="Marriage Without Delay", filename="marriage_without_delay", enabled=True, elements=[mwd_instructions_sheet, Marriage_without_Delay_attachment])
+  - al_court_bundle: ALDocumentBundle.using(title="Marriage Without Delay", filename="marriage_without_delay", enabled=True, elements=[Marriage_without_Delay_attachment])
+---
 id: final attachment
 attachment:
-    variable name: Marriage_without_Delay_attachment
+    variable name: Marriage_without_Delay_attachment[i]
     name: Marriage Without Delay
     filename: Marriage_Without_Delay
     pdf template file: Marriage_without_Delay.pdf
     fields: 
-      - "court_name": ${ str(courts[0]) }
-      - "user1_name": ${ str(users[1-1]) }
+      - "court_name": ${ trial_court }
+      - "user1_name": ${ users[0] }
       - "user1_address_street": ${ users[0].address.line_one() }
       #- "user1_address_unit": ${ users[0 ].address.unit }
       - "user1_address_city": ${ users[0].address.city }
       - "user1_address_state": ${ users[0 ].address.state }
       - "user1_address_zip": ${ users[0 ].address.zip }
-      - "user2_name": ${ str(users[1]) }
+      - "user2_name": ${ users[1] }
       - "user2_address_zip": ${ users[1].address.zip }
       #- "user2_address_unit": ${ users[1].address.unit }
       - "user2_address_street": ${ users[1].address.line_one() }
       - "user2_address_city": ${ users[1].address.city }
       - "user2_address_state": ${ users[1].address.state }
       - "signature_date": ${ signature_date }
-      - "user1_signature": ${ users[0].signature }
-      - "user2_signature": ${ users[1].signature }
+      - "user1_signature": ${ users[0].signature_if_final(i) }
+      - "user2_signature": ${ users[1].signature_if_final(i) }
 ---
-
 code: |
   interview_short_title = "Ask the court for permission to get married right away"
 ---
@@ -320,11 +281,9 @@ help: |
   The court **must** be able to reach you. So you have to give them some way to do this.
 
 ---
-if: |
-  not defined('preferred_court') or preferred_court != 'Housing Court'
 id: court information
 sets:
-  - courts[0].name
+  - trial_court.name
 question: |
   Which court are you filing in?
 subquestion: |
@@ -332,9 +291,9 @@ subquestion: |
   
   If the town clerk did not tell you the best court to file in, you can try finding your local court by using the [Courthouse directory](https://www.mass.gov/guides/find-a-courthouse-serving-you).
 fields: 
-  - Court name: courts[0]
+  - Court name: trial_court
     datatype: object
-    choices: macourts.filter_courts(["District Court", "Probate and Family Court"])
+    choices: all_courts.filter_courts(["District Court", "Probate and Family Court"])
 help:
   label: Find your town clerk
   heading: |
@@ -359,93 +318,9 @@ subquestion: |
     
   Ignore the Marriage of Minors part of this form. 
    
-  ${ Marriage_without_Delay_attachment_preview }
+  ${ Marriage_without_Delay_attachment.as_pdf(key='preview') }
   
 ---
-id: signature date
-question: |
-  When are you and ${ users[1].name.first } going to file this form?
-subquestion: |
-  We automatically answer "today" for you, below. You can change the date
- 
-fields: 
-  - Date: signature_date
-    datatype: date
-    default: ${today().format("yyyy-MM-dd")}
-
-# comment: In the future, if the user chooses a day more than 3 days out, a page should tell them that they don't need to fill this form out.
-
-# comment: Possible addition: "Reminder: if your wedding date is more than four days away, you may not need to fill out this form." 
-
----
-if: form_approved_for_email_filing
-id: download form
-event: download
-decoration: file-download
-question: |
-  % if not defined('email_success') or not email_success:
-  Review, download, and send form
-  % else:
-  Form delivered
-  % endif
-subquestion: |
-  % if not defined('email_success') or not email_success:
-  Your form is ready to send to the court. **It is not
-  delivered until you complete the delivery process.**
-
-  1. Click the preview image below to open the form in a new window.
-  2. Download and save or print a copy of this form for your 
-  records.
-  3. Click the "Submit to ${courts[0]}" button to send it to the court. 
-  4. You will have a chance to add instructions to the clerk and see the cover page before final delivery.
-  
-  **Note**: Even though it says 'Probate and Family Court' at the top of this form, If you are filing in District Court you still use the same form. 
-  
-  % else:
-  If you do not hear from the court in 1 business day, call the Trial Court’s
-  Emergency HelpLine 833-91-COURT (833-912-6878).
-  
-  The Emergency HelpLine is open:  
-  8:30am - 4:30pm,   
-  Monday - Friday.
-  % endif
-  
-  ${ form_to_file_no_cover } 
-  
-  % if not defined('email_success') or not email_success:
-    ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(courts[0].name), icon=send_icon, size="md", color="primary")}
-    
-  Or download/email below:
-  % else:
-    Your email has already been delivered to ${courts[0]}
-    
-  [:file-download: Download with cover page](${final_form_to_file.url_for()})    
-  % endif
-progress: 100
-attachment code: Marriage_without_Delay_attachment
----
-id: preview unsigned 
-attachment:
-    variable name: Marriage_without_Delay_attachment_preview
-    name: Marriage Without Delay
-    filename: Marriage_Without_Delay
-    pdf template file: Marriage_without_Delay.pdf
-    fields: 
-      - "court_name": ${ str(courts[0]) }
-      - "user1_name": ${ str(users[0]) }
-      - "user1_address_street": ${ users[0].address.line_one() }
-      #- "user1_address_unit": ${ users[0].address.unit }
-      - "user1_address_city": ${ users[0].address.city }
-      - "user1_address_state": ${ users[0].address.state }
-      - "user1_address_zip": ${ users[0].address.zip }
-      - "user2_name": ${ str(users[1]) }
-      - "user2_address_zip": ${ users[1].address.zip }
-      #- "user2_address_unit": ${ users[1].address.unit }
-      - "user2_address_street": ${ users[1].address.line_one()  }
-      - "user2_address_city": ${ users[1].address.city }
-      - "user2_address_state": ${ users[1].address.state }
----
-if: not form_approved_for_email_filing
 id: download form do not email
 event: download
 decoration: file-download
@@ -458,11 +333,11 @@ subquestion: |
   1. Click the link below to open the form in a new window.
   2. Download and save or print a copy of this form for your 
   records.
-  3. Call the clerk of the ${courts[0]} at ${ courts[0].phone } or call the emergency help line
+  3. Call the clerk of the ${trial_court} at ${ trial_court.phone } or call the emergency help line
   at 833-912-6878 to get help filing this form. The clerk may ask you
   to email it, e-file it, or to print and mail it.
 
-  [:file-download: Download a copy of your form and next steps](${instructions_download.url_for(attachment=True)})  
+  ${ al_user_bundle.download_list_html() }
   
   **Next steps: **
     
@@ -488,178 +363,11 @@ subquestion: |
   
   **Note**: Even though it says 'Probate and Family Court' at the top of this form, If you are filing in District Court you still use the same form.
   
+  ${ al_user_bundle.send_button_html() }
+  
 progress: 100
 section: download  
-attachment code: Marriage_without_Delay_attachment
----
-need: sent_email_to_court
-id: email status
-#reconsider: 
-#  - form_to_file_no_cover 
-#  - Marriage_without_Delay_attachment
-#  - mwd_instructions_sheet
-decoration: file-download
-question: |
-  % if email_success:
-  Your form will be sent within the next 15 minutes.
-  % else:
-  Something went wrong delivering your form
-  % endif
-subquestion: |
-
-  [:file-download: Download a copy of your form and next steps](${instructions_download.url_for(attachment=True)})
-  
-  % if email_success:  
-  If you and your partner do not hear from the ${courts[0]} 1 hour after filing, call them at ${ courts[0].phone } to make sure they got your information. 
-  
-  If you do not hear from the court in 1 business day, call the Trial Court’s Emergency HelpLine 833-91-COURT (833-912-6878). 
-  
-  The Emergency HelpLine is open:  
-  8:30am - 4:30pm,   
-  Monday - Friday. 
-  
-  **Next steps: **
-  
-  Download and save or print a copy of this form for your records.  
-  
-  You will speak to a judge to find out if you and your partner can skip the 3 day waiting period. If you and your partner are allowed to skip the waiting period, you must file for a marriage license in person at your local city or town hall. Use the [Massachusetts City and Town Directory](https://www.sec.state.ma.us/ele/eleclk/clkidx.htm) to find the town or city clerk's phone number.
-  
-  You will need to bring the following items to your local city or town hall with your approved Marriage Without Delay: 
-  
-  * Proof of your age, like a birth certificate or passport,
-  
-  * Your Social Security number - if you do not have an SSN, ask the town clerk what to do,
-  
-  * Payment for fees, if fees apply, and
-  
-  * The name you will use after your wedding if you decide to change your names.
-  
-   Other possible requirements:
-  
-  * The end date any prior marriages of the future spouses,
-  
-  * Names of your parents and where they were born,
-  
-  * Town you are getting married in.
-  
-  **Note**: Even though it says 'Probate and Family Court' at the top of this form, If you are filing in District Court you still use the same form.
-  
-  % else:
-  Something went wrong delivering your form to the ${courts[0]}.  
-  Try again later or call the Trial Court’s Emergency HelpLine 833-91-COURT (833-912-6878). 
-  
-  The Emergency HelpLine is open:  
-  8:30am - 4:30pm,  
-  Monday - Friday.  
-  % endif
-
-continue button field: email_status
-continue button label: Back to download screen
----
-id: interpreter 
-question: |
-  Do you need an interpreter?
-subquestion: |
-  You have the right to an interpreter. 
-  
-  If you are not 100% confident about speaking English, ask for an interpreter. If there is any chance:
-  
-  * You may not understand **everything** that is said in English. Or
-  * Other people in the hearing will not be able to understand you. 
-  
-  Then ask.
-  
-  You do not have to speak only through the interpeter, but you will have one if you need one.
-  
-fields:
-  - I need an interpreter.: user_needs_interpreter
-    datatype: yesnoradio
-  - My preferred language is: user_preferred_language 
-    show if: user_needs_interpreter
----
-need:
-  - comments_to_clerk
-  - package_version_number
-id: ready to email
-question: |
-  Final Review With Cover Page
-subquestion: |
-  
-  Below is your ${comma_and_list(download_titles)} document with the 
-  cover page that we will deliver to ${courts[0]}.
-  
-  Download and save or print a copy of this form for your 
-  records. 
-  
-  Click "Back" if you need to make any changes.  
-  Click "Send to court" to deliver it.
-  
-  Here is what the clerk at ${courts} will get:
-
-  ${ final_form_to_file }  
-  
-  [:file-download: Download this form with cover page](${final_form_to_file.url_for(attachment=True)})
-
-  % if found_email:
-  We will deliver it securely. Please allow up to 15 minutes for the email to
-  arrive.
-  % else:
-  There was a problem delivering this to the ${courts[0]}. We couldn't
-  locate the contact information for this court.
-  % endif
- 
-  Press below to deliver the form.
-fields:
-  - Send me a copy: should_cc_user
-    datatype: yesno
-  - Email address: cc_email
-    datatype: email
-    show if: should_cc_user
-    default: ${users[0].email if defined('users[0].email') else ''}
-continue button field: ready_to_email
-continue button label: Send to court
----
-id: cover page instructions
-question: |
-  Special instructions for the cover page
-subquestion: |
-  Before we deliver your form, you can include instructions on the cover
-  page that will be sent to the clerk at ${courts[0]}.
-  
-  For example, you may have special instructions about how and when to reach
-  you that you did not already include in the contact information section.
-  
-  The clerk _may_ print the cover page and include it in the public file.
-
-  Are there any instructions that you would like to give to the clerk that will
-  receive your forms?
-fields:
-  - Information for clerk: comments_to_clerk
-    datatype: area
-    rows: 4
-    required: False
-help:
-  label: |
-    What to include?
-  content: |
-    Include information that you want the clerk to know. The clerk is the person
-    who will receive your paperwork and put it in an official court file. The
-    clerk is not a decision maker on your case.
-
-    Do not include information that is meant for the judge or the other party.
-    Do not include information that is meant to be part of your official case.
-
-    There is a chance this information may end up in the public court file, so
-    do not include sensitive or private information.
 ---
 attachment:
-  variable name: mwd_instructions_sheet
-  filename: ${package_title}
+  variable name: mwd_instructions_sheet[i]
   docx template file: mwd_instructions_sheet.docx
----
-code: |
-    instructions_download = pdf_concatenate(mwd_instructions_sheet, form_to_file_no_cover, filename=space_to_underscore(package_title) + '.pdf')
---- 
-code: | 
-    form_to_file_no_cover = pdf_concatenate([value(interview_metadata[key]["attachment block variable"]) for key in interview_metadata.elements])
-
