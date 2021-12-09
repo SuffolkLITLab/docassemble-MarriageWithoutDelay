@@ -100,8 +100,8 @@ attachment:
       - "user2_address_city": ${ users[1].address.city }
       - "user2_address_state": ${ users[1].address.state }
       - "signature_date": ${ signature_date }
-      - "user1_signature": ${ users[0].signature }
-      - "user2_signature": ${ users[1].signature }
+      - "user1_signature": ${ users[0].signature_if_final(i) }
+      - "user2_signature": ${ users[1].signature_if_final(i) }
 ---
 code: |
   interview_short_title = "Ask the court for permission to get married right away"
