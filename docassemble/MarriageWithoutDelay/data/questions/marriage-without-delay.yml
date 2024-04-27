@@ -33,6 +33,11 @@ metadata:
     - en
   help_page_url: https://www.mass.gov/info-details/instructions-marriage-without-delay-court-form
   help_page_title: Instructions for Marriage Without Delay Court Form
+  LIST_topics:
+    - FA-10-00-00-00
+  tags:
+    - FA-10-00-00-00
+  jurisdiction: NAM-US-US+MA
   original_form: https://www.mass.gov/media/885771/download
   original_form_published_on: 2022-10-01
   review_date: 2024-04-26
