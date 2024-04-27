@@ -9,7 +9,41 @@ metadata:
   short title: |
     Marriage Without Delay
   description: |
-    This interview helps you fill out a form to ask the court for a 209A restraining order.
+    This interview helps you fill out a form (TC0020) to ask the court for permission to get
+    married without waiting the usual 3 days.
+
+    Both you and your partner need to sign this form at the same time.
+  can_I_use_this_form: |
+    You can use this form if you have a good reason to get married without
+    waiting the usual 3 days. For example, you might need to get married
+    quickly because of a medical emergency or because you are in the military.
+
+    You and your partner must be adults (over 18) to get married in Massachusetts.
+  before_you_start: |
+    Before you start this interview, call your town or city clerk to find out
+    all the documents and information needed for a marriage license. Ask the
+    clerk which Court you should file in, and how much the license costs.
+
+    Use the [Massachusetts City and Town Directory](https://www.sec.state.ma.us/ele/eleclk/clkidx.htm)
+    to find the town or city clerk's phone number.
+  maturity: production
+  estimated_completion_minutes: 10
+  estimated_completion_delta: 5
+  languages:
+    - en
+  help_page_url: https://www.mass.gov/info-details/instructions-marriage-without-delay-court-form
+  help_page_title: Instructions for Marriage Without Delay Court Form
+  original_form: https://www.mass.gov/media/885771/download
+  original_form_published_on: 2022-10-01
+  review_date: 2024-04-26
+  form_titles:
+    - Request for Marriage Without Delay
+  form_numbers:
+    - TC0020 (10/22)
+  fees:
+    - Filing fee: $195
+  update_notes: |
+    Updated April 2024
   authors:
     - Matthew Wilward
   
