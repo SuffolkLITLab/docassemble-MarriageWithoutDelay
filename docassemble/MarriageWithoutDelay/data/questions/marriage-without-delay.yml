@@ -6,8 +6,47 @@ include:
 metadata: 
   title: |
     Marriage Without Delay
+  short title: |
+    Marriage Without Delay
+  description: |
+    This interview helps you fill out a form (TC0020) to ask the court for permission to get
+    married without waiting the usual 3 days.
+
+    Both you and your partner need to sign this form at the same time.
+  can_I_use_this_form: |
+    You can use this form if you have a good reason to get married without
+    waiting the usual 3 days. For example, you might need to get married
+    quickly because of a medical emergency or because you are in the military.
+
+    You and your partner must be adults (over 18) to get married in Massachusetts.
+  before_you_start: |
+    Before you start this interview, call your town or city clerk to find out
+    all the documents and information needed for a marriage license. Ask the
+    clerk which Court you should file in, and how much the license costs.
+
+    Use the [Massachusetts City and Town Directory](https://www.sec.state.ma.us/ele/eleclk/clkidx.htm)
+    to find the town or city clerk's phone number.
+  maturity: production
+  estimated_completion_minutes: 10
+  estimated_completion_delta: 5
+  languages:
+    - en
+  help_page_url: https://www.mass.gov/info-details/instructions-marriage-without-delay-court-form
+  help_page_title: Instructions for Marriage Without Delay Court Form
+  original_form: https://www.mass.gov/media/885771/download
+  original_form_published_on: 2022-10-01
+  review_date: 2024-04-26
+  form_titles:
+    - Request for Marriage Without Delay
+  form_numbers:
+    - TC0020 (10/22)
+  fees:
+    - Filing fee: $195
+  update_notes: |
+    Updated April 2024
   authors:
     - Matthew Wilward
+  
 ---
 code: |
   github_repo_name = "docassemble-MarriageWithoutDelay"
@@ -44,8 +83,7 @@ code: |
   users.target_number = 2
   basic_questions_intro_screen 
   Marriage_without_Delay_intro
-  str(users[1-1])
-  str(users[2-1])
+  users.gather()
   same_address_question
   users[0].address.address
   set_address_logic 
@@ -60,6 +98,8 @@ code: |
   users[0].phone_number
   users[0].email
   users[0].other_contact_method
+  users[1].phone_number
+  users[1].email
   user_needs_interpreter
   Marriage_without_Delay_preview_question
   signature_date
@@ -86,22 +126,23 @@ attachment:
     filename: Marriage_Without_Delay
     pdf template file: Marriage_without_Delay.pdf
     fields: 
-      - "court_name": ${ trial_court }
+      - "trial_court_department": ${ trial_court.department }
+      - "trial_court_division": ${ trial_court.division }
       - "user1_name": ${ users[0] }
-      - "user1_address_street": ${ users[0].address.line_one() }
-      #- "user1_address_unit": ${ users[0 ].address.unit }
-      - "user1_address_city": ${ users[0].address.city }
-      - "user1_address_state": ${ users[0 ].address.state }
-      - "user1_address_zip": ${ users[0 ].address.zip }
+      - "user1_address_block": ${ users[0].address.block() }
+      - "user1_phone_number": ${ users[0].phone_numbers() }
+      - "user1_email": ${ users[0].email }
       - "user2_name": ${ users[1] }
-      - "user2_address_zip": ${ users[1].address.zip }
-      #- "user2_address_unit": ${ users[1].address.unit }
-      - "user2_address_street": ${ users[1].address.line_one() }
-      - "user2_address_city": ${ users[1].address.city }
-      - "user2_address_state": ${ users[1].address.state }
+      - "user2_phone_number": ${ users[1].phone_numbers() }
+      - "user2_email": ${ users[1].email }
+      - "user2_address_block": ${ users[1].address.block() }
       - "signature_date": ${ signature_date }
+      - "signature_date__2": ${ signature_date }
       - "user1_signature": ${ users[0].signature_if_final(i) }
       - "user2_signature": ${ users[1].signature_if_final(i) }
+---
+code: |
+  al_form_requires_digital_signature = False
 ---
 code: |
   interview_short_title = "Ask the court for permission to get married right away"
@@ -249,12 +290,7 @@ code: |
 ---
 id: contact information 
 question: |
-  What is the best way for the court to reach you and ${ users[1].name.first } ?
-subquestion: |
-  The court needs to schedule a time for you and ${ users[1].name.first } to talk with a judge.
-  
-  Include at least one way to reach you and ${ users[1].name.first }, other than by mail.
- 
+  How can ${ users[0] } be contacted ?
 fields: 
   - Mobile number: users[0].mobile_number
     required: False
@@ -263,22 +299,30 @@ fields:
   - Email address: users[0].email    
     datatype: email
     required: False
-  - Other ways to reach you: users[0].other_contact_method
-    input type: area
-    required: False
-    help: |
-      If you do not have a phone number or email the court can use, provide
-      specific contact instructions. For example, use a friend's phone number.
-      But the friend must be someone you can rely on to tell you the court is trying to reach you.
       
 validation code: |
   if (not showifdef('users[0].phone_number') and \
       (not showifdef('users[0].mobile_number')) and \
-      (not showifdef('users[0].email')) and \
-      (not showifdef('users[0].other_contact_method'))):
+      (not showifdef('users[0].email'))):
     validation_error(word("You need to provide at least one contact method."))
-help: |
-  The court **must** be able to reach you. So you have to give them some way to do this.
+---
+id: contact information for user2
+question: |
+  How can ${ users[1] } be contacted ?
+fields: 
+  - Mobile number: users[1].mobile_number
+    required: False
+  - Other phone number: users[1].phone_number
+    required: False
+  - Email address: users[1].email    
+    datatype: email
+    required: False
+      
+validation code: |
+  if (not showifdef('users[1].phone_number') and \
+      (not showifdef('users[1].mobile_number')) and \
+      (not showifdef('users[1].email'))):
+    validation_error(word("You need to provide at least one contact method."))
 
 ---
 id: court information
@@ -315,9 +359,7 @@ question: |
   Preview your form before signing
 subquestion: |
   Here is a preview of the form you will sign on the next page.
-    
-  Ignore the Marriage of Minors part of this form. 
-   
+     
   ${ Marriage_without_Delay_attachment.as_pdf(key='preview') }
   
 ---
